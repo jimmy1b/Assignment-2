@@ -1,4 +1,5 @@
 var bounding_box = false;
+var flash = false;
 
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -238,6 +239,7 @@ function Bullet(game, x, y) {
     this.counter = 0;
     this.live = false;
     this.target;
+    this.anim = new Animation(ASSET_MANAGER.getAsset("./img/shot.png"), 0, 0, 420, 420, 1, 1, true, false);
     Entity.call(this, game, x, y);
     this.bb = new BoundingBox(this.x - 5, this.y - 5, 10, 10);
 }
@@ -258,10 +260,14 @@ Bullet.prototype.update = function() {
 Bullet.prototype.draw = function(ctx) {
     if (this.live) {
         //draw 
+        if (flash) {
         this.game.ctx.fillStyle = "white";
-        this.game.ctx.fillRect(0, 0, this.game.ctx.canvas.width, this.game.ctx.canvas.height);
-        this.game.ctx.fillStyle = "black";
-        this.game.ctx.fillRect(this.bb.x - 10, this.bb.y - 10, this.bb.width + 20, this.bb.height + 20);
+            this.game.ctx.fillRect(0, 0, this.game.ctx.canvas.width, this.game.ctx.canvas.height);
+            this.game.ctx.fillStyle = "black";
+            this.game.ctx.fillRect(this.bb.x - 10, this.bb.y - 10, this.bb.width + 20, this.bb.height + 20);
+        } else {
+            this.anim.drawFrame(this.game.clockTick, ctx, this.bb.x - 100, this.bb.y - 100, 0.5);
+        }
     }
     // Entity.prototype.draw.call(this);
 
@@ -295,6 +301,8 @@ var ASSET_MANAGER = new AssetManager();
 
 ASSET_MANAGER.queueDownload("./img/reticle.png");
 ASSET_MANAGER.queueDownload("./img/targets.png");
+ASSET_MANAGER.queueDownload("./img/shot.png");
+
 
 ASSET_MANAGER.downloadAll(function () {
     console.log("starting up da sheild");
@@ -316,8 +324,13 @@ ASSET_MANAGER.downloadAll(function () {
     // gameEngine.addEntity(t1);
     // gameEngine.addEntity(t2);
     // gameEngine.addEntity(t3);
-    gameEngine.addEntity(shooter);
-    gameEngine.addEntity(bullet);
+    if (flash) {
+        gameEngine.addEntity(shooter);
+        gameEngine.addEntity(bullet);
+    } else {
+        gameEngine.addEntity(bullet);
+        gameEngine.addEntity(shooter);
+    }
  
     gameEngine.init(ctx);
     gameEngine.start();
