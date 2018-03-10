@@ -132,7 +132,7 @@ function Target(game, x, y, type) {
     this.live = true;
     this.dead = false;
     // this.animation = new Animation(ASSET_MANAGER.getAsset("./img/RobotUnicorn.png"), 0, 0, 206, 110, 0.02, 30, true, true);
-    this.spawnAnim = new Animation(ASSET_MANAGER.getAsset("./img/targets.png"), 0, 0, 90, 171, 0.2, 2, false, false);
+    this.spawnAnim = new Animation(ASSET_MANAGER.getAsset("./img/targets.png"), 0, 0, 90, 171, 0.1, 2, false, false);
     this.idle = new Animation(ASSET_MANAGER.getAsset("./img/targets.png"), (type * 90), 353, 90, 171, 1, 1, true, false);
     this.deathAnim = new Animation(ASSET_MANAGER.getAsset("./img/targets.png"), 0, 171, 90, 171, 0.25, 2, false, false);
     Entity.call(this, game, x, y);
