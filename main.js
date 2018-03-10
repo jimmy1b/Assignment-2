@@ -86,9 +86,10 @@ Target_Spawner.prototype.update = function() {
     //  y = floor(random * (bottom bounds - something2) + something2)
     //  type = floor(random * 3)
     //  make a target with those coords and add it to the array
+    // if (Math.floor(Math.random() * 10) == 0) { //faster spawning for testing
     if (Math.floor(Math.random() * 100) == 0) {
-        this.targets.push(new Target(this.game, Math.floor(Math.random() * (this.game.ctx.canvas.width - 90) ),
-             Math.floor(Math.random() * (this.game.ctx.canvas.height - 177) ), Math.floor(Math.random() * 3)));
+        this.targets.push(new Target(this.game, Math.floor(Math.random() * (this.game.ctx.canvas.width - 90 + 75) ),
+             Math.floor(Math.random() * (this.game.ctx.canvas.height - 177 + 110) ), Math.floor(Math.random() * 3)));
     }
     
 
@@ -130,12 +131,12 @@ Target.prototype.update = function() {
 Target.prototype.draw = function(ctx) {
     if (this.spawnAnim.isDone()) {
         if (this.live) {
-            this.idle.drawFrame(this.game.clockTick, ctx, this.x, this.y, 1);
+            this.idle.drawFrame(this.game.clockTick, ctx, this.x - 45, this.y - 80, 1);
         } else {
-            this.deathAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y, 1);
+            this.deathAnim.drawFrame(this.game.clockTick, ctx, this.x - 45, this.y - 80, 1);
         }
     } else {
-        this.spawnAnim.drawFrame(this.game.clockTick, ctx, this.x, this.y, 1);
+        this.spawnAnim.drawFrame(this.game.clockTick, ctx, this.x - 45, this.y - 80, 1);
     }
 }
 
@@ -144,20 +145,47 @@ Target.prototype.draw = function(ctx) {
 //MATHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 //shoots when over the target
 
-function Shooter(game) {
+function Shooter(game, targetSpawner) {
     this.anim = new Animation(ASSET_MANAGER.getAsset("./img/reticle.png"), 0, 0, 480, 480, 1, 1, true, false);
-    Entity.call(this, game, 0, 440);
+    this.dx = 0;
+    this.dy = 0;
+    this.angle = 0;
+    this.speed = 0;
+    this.maxSpeed = 20;
+    this.target;
+    this.spawner = targetSpawner;
+    Entity.call(this, game, 700, 440);
 }
 
 Shooter.prototype = new Entity();
 Shooter.prototype.constructor = Shooter;
 
 Shooter.prototype.update = function() {
+    if (this.target == null || !this.target.live) {
+        if (this.spawner.targets[0] != null) {
+            this.target = this.spawner.targets[0];
+        }
+    } else {
+        this.speed = Math.min(this.maxSpeed, 4 * Math.log10(Math.sqrt(Math.pow(this.dx, 2), Math.pow(this.dy, 2))))
+        this.x -= this.speed * Math.cos(this.angle);
+        this.y -= this.speed * Math.sin(this.angle);
+    }
 
+    if (this.target != null) {
+        this.dx = this.x - this.target.x;
+        this.dy = this.y - this.target.y;
+        this.angle = Math.atan2(this.dy, this.dx) 
+        // * 180 / Math.PI;
+        if (this.angle < 0) this.angle += 2 * Math.PI;
+            // 360;
+
+        // this.x += this.speed * Math.cos(this.angle);
+        // this.y += this.speed * Math.sin(this.angle);
+    }
 }
 
 Shooter.prototype.draw = function(ctx) {
-    this.anim.drawFrame(this.game.clockTick, ctx, this.x, this.y, 0.25);
+    this.anim.drawFrame(this.game.clockTick, ctx, this.x - 60, this.y - 56, 0.25);
 }
 
 //bullet object
@@ -224,8 +252,8 @@ ASSET_MANAGER.downloadAll(function () {
 
     var gameEngine = new GameEngine();
     var bg = new Background(gameEngine);
-    var shooter = new Shooter(gameEngine);
     var t = new Target_Spawner(gameEngine);
+    var shooter = new Shooter(gameEngine, t);
     // var t1 = new Target(gameEngine, 50, 50, 0);
     // var t2 = new Target(gameEngine, 100, 100, 1);
     // var t3 = new Target(gameEngine, 150, 150, 2);
