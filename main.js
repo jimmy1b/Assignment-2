@@ -1,5 +1,6 @@
 var bounding_box = false;
 var flash = false;
+var score = 0;
 
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
@@ -204,6 +205,7 @@ Shooter.prototype.update = function() {
             this.bullet.bb = new BoundingBox(this.x - 5, this.y - 5, 10, 10);
             this.bullet.live = true;
             this.target.live = false;
+            score++;
         }
     }
 
@@ -261,10 +263,13 @@ Bullet.prototype.draw = function(ctx) {
     if (this.live) {
         //draw 
         if (flash) {
-        this.game.ctx.fillStyle = "white";
+            this.game.ctx.fillStyle = "white";
             this.game.ctx.fillRect(0, 0, this.game.ctx.canvas.width, this.game.ctx.canvas.height);
             this.game.ctx.fillStyle = "black";
             this.game.ctx.fillRect(this.bb.x - 10, this.bb.y - 10, this.bb.width + 20, this.bb.height + 20);
+
+            this.live = false;
+            this.counter = 0;
         } else {
             this.anim.drawFrame(this.game.clockTick, ctx, this.bb.x - 100, this.bb.y - 100, 0.5);
         }
@@ -276,6 +281,26 @@ Bullet.prototype.draw = function(ctx) {
         else this.game.ctx.strokeStyle = "yellow";
         this.game.ctx.strokeRect(this.bb.x, this.bb.y, this.bb.width, this.bb.height);
     }
+}
+
+function Score(game) {
+    Entity.call(this, game, 8, 24);
+    // this.game.ctx.font = "15px Arial";
+    // this.game.ctx.fillstyle = "black"
+    // this.game.ctx.fillText("SCORE: " + score, this.x, this.y);
+}
+
+Score.prototype = new Entity();
+Score.prototype.constructor = Score;
+
+Score.prototype.update = function() {
+    if (this.game.flashtoggle) flash = !flash;
+}
+
+Score.prototype.draw = function(ctx) {
+    this.game.ctx.font = "20px Arial";
+    this.game.ctx.fillstyle = "black"
+    this.game.ctx.fillText("SCORE: " + score, this.x, this.y);
 }
 
 function BoundingBox(x, y, width, height) {
@@ -314,6 +339,7 @@ ASSET_MANAGER.downloadAll(function () {
     var t = new Target_Spawner(gameEngine);
     var bullet = new Bullet(gameEngine, 50, 50);
     var shooter = new Shooter(gameEngine, t, bullet);
+    var scoree = new Score(gameEngine);
     // var t1 = new Target(gameEngine, 50, 50, 0);
     // var t2 = new Target(gameEngine, 100, 100, 1);
     // var t3 = new Target(gameEngine, 150, 150, 2);
@@ -331,6 +357,7 @@ ASSET_MANAGER.downloadAll(function () {
         gameEngine.addEntity(bullet);
         gameEngine.addEntity(shooter);
     }
+    gameEngine.addEntity(scoree)
  
     gameEngine.init(ctx);
     gameEngine.start();
