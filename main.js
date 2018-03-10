@@ -1,4 +1,4 @@
-var bounding_box = true;
+var bounding_box = false;
 
 function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration, frames, loop, reverse) {
     this.spriteSheet = spriteSheet;
